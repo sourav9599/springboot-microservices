@@ -20,11 +20,11 @@ pipeline {
                     }
             }
         }
-        stage('Quality gate') {
-            steps {
-                waitForQualityGate abortPipeline: true
-            }
-        }
+        // stage('Quality gate') {
+        //     steps {
+        //         waitForQualityGate abortPipeline: true
+        //     }
+        // }
         
 
         stage ('Exec Maven') {

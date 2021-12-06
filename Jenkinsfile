@@ -9,15 +9,14 @@ pipeline {
     }
 
     stages {
-        stage('Static Code Analysis') {
-            steps {
-                sh 'mvn pmd:pmd'
-            }
-        }
+
         stage('Sonarqube Analysis') {
             steps {
                     withSonarQubeEnv('SonarQube') {
-                        sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=user-service'
+                        sh '''
+                        cd user-service
+                        mvn clean verify sonar:sonar -Dsonar.projectKey=user-service
+                        '''
                     }
             }
         }
@@ -30,7 +29,10 @@ pipeline {
 
         stage ('Exec Maven') {
             steps {
-               sh 'mvn package'
+               sh '''
+               cd user-service
+               mvn package
+               '''
             }
         }
 
@@ -61,7 +63,7 @@ pipeline {
         stage('Docker Run') {
             steps {
                 script {
-                    dockerImage.run('-p 4002:9002 --rm --name user-service')
+                    dockerImage.run('-p 4001:4001 --rm --name user-service')
                 }
             }
         }

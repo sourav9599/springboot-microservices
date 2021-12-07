@@ -1,37 +1,52 @@
 version: '3'
 services:
-  registry:
-    image: developer.okta.com/microservice-docker-discovery:0.0.1-SNAPSHOT
+  service-registry:
+    image: souravcoder99/service-registry-dockerapp:latest
     ports:
       - 8761:8761
-  config:
-    image: developer.okta.com/microservice-docker-config:0.0.1-SNAPSHOT
-    volumes:
-      - ./config-data:/var/config-data
+  cloud-config-server:
+    image: souravcoder99/cloud-config-server-dockerapp:latest
     environment:
       - JAVA_OPTS=
-         -DEUREKA_SERVER=http://registry:8761/eureka
-         -Dspring.cloud.config.server.native.searchLocations=/var/config-data
+         -DEUREKA_SERVER=http://service-registry:8761/eureka
     depends_on:
-      - registry
+      - service-registry
+  cloud-gateway:
+    image: souravcoder99/cloud-gateway-dockerapp:latest
+    environment:
+      - JAVA_OPTS=
+         -DEUREKA_SERVER=http://service-registry:8761/eureka
+    depends_on:
+      - service-registry
+      - cloud-config-server
     ports:
-      - 8888:8888
-  school-service:
-    image: developer.okta.com/microservice-docker-school-service:0.0.1-SNAPSHOT
+      - 4002:4002
+  department-service:
+    image: souravcoder99/department-service-dockerapp:latest
     environment:
       - JAVA_OPTS=
-        -DEUREKA_SERVER=http://registry:8761/eureka
-    depends_on:
-      - registry
-      - config
-  school-ui:
-    image: developer.okta.com/microservice-docker-school-ui:0.0.1-SNAPSHOT
-    environment:
-      - JAVA_OPTS=
-        -DEUREKA_SERVER=http://registry:8761/eureka
+        -DEUREKA_SERVER=http://service-registry:8761/eureka
     restart: on-failure
     depends_on:
-      - registry
-      - config
+      - service-registry
+      - cloud-config-server
+  user-service:
+    image: souravcoder99/user-service-dockerapp:latest
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://service-registry:8761/eureka
+    restart: on-failure
+    depends_on:
+      - service-registry
+      - cloud-config-server
+      - department-service
+  hystrix-dashboard:
+    image: souravcoder99/hystrix-dashboard-dockerapp:latest
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://service-registry:8761/eureka
+    depends_on:
+      - service-registry
+      - cloud-config-server  
     ports:
-      - 8080:8080
+      - 4003:4003

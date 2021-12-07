@@ -3,7 +3,7 @@ pipeline {
         label 'master'
     }
     environment {
-        registry = 'souravcoder99/$microservice-dockerapp'
+        
         DOCKERHUB_CREDENTIALS=credentials('docker-cred')
         dockerImage = ''
     }
@@ -40,7 +40,7 @@ pipeline {
             steps {
                     sh '''
                     cd $microservice
-                    docker build -t $registry:latest .
+                    docker build -t souravcoder99/$microservice-dockerapp:latest .
                     '''
                 
             }
@@ -54,7 +54,7 @@ pipeline {
 
         stage('Upload Image') {
             steps {
-                    sh 'docker push $registry:latest'
+                    sh 'docker push souravcoder99/$microservice-dockerapp:latest'
                 }
             }
         }

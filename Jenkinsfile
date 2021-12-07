@@ -3,8 +3,8 @@ pipeline {
         label 'master'
     }
     environment {
-        registry = 'souravcoder99/user-service-dockerapp'
-        registryCredential = 'docker-cred'
+        registry = 'souravcoder99/$microservice-dockerapp'
+        DOCKERHUB_CREDENTIALS=credentials('docker-cred')
         dockerImage = ''
     }
 
@@ -14,8 +14,8 @@ pipeline {
             steps {
                     withSonarQubeEnv('SonarQube') {
                         sh '''
-                        cd user-service
-                        mvn clean verify sonar:sonar -Dsonar.projectKey=user-service
+                        cd $microservice
+                        mvn clean verify sonar:sonar -Dsonar.projectKey=$microservice
                         '''
                     }
             }
@@ -30,7 +30,7 @@ pipeline {
         stage ('Exec Maven') {
             steps {
                sh '''
-               cd user-service
+               cd $microservice
                mvn package
                '''
             }
@@ -38,38 +38,44 @@ pipeline {
 
         stage('Building image') {
             steps {
-                script {
-                    dockerImage = docker.build registry
-                }
+                    sh '''
+                    cd $microservice
+                    docker build -t $registry:latest .
+                    '''
+                
             }
         }
+        stage('Login') {
+
+			steps {
+				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+			}
+		}
 
         stage('Upload Image') {
             steps {
-                script {
-                    docker.withRegistry( '', registryCredential ) {
-                        dockerImage.push()
-                    }
+                    sh 'docker push $registry:latest'
                 }
             }
         }
 
-        stage('docker stop container') {
-            steps {
-                sh 'docker ps -f name=user-service -q | xargs --no-run-if-empty docker container stop'
-                sh 'docker container ls -a -fname=user-service -q | xargs -r docker container rm'
-            }
-        }
-        stage('Docker Run') {
-            steps {
-                script {
-                    dockerImage.run('-p 4001:4001 --rm --name user-service')
-                }
-            }
-        }
+        // stage('docker stop container') {
+        //     steps {
+        //         sh 'docker ps -f name=user-service -q | xargs --no-run-if-empty docker container stop'
+        //         sh 'docker container ls -a -fname=user-service -q | xargs -r docker container rm'
+        //     }
+        // }
+        // stage('Docker Run') {
+        //     steps {
+        //         script {
+        //             dockerImage.run('-p 4001:4001 --rm --name user-service')
+        //         }
+        //     }
+        // }
     }
     post {
         always {
+            sh 'docker logout'
             cleanWs()
         }
     }

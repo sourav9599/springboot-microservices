@@ -1,5 +1,13 @@
+#spring:
+#  cloud:
+#    config:
+#      enabled: true
+#      uri: http://localhost:4004
+
 spring:
   cloud:
     config:
-      enabled: true
-      uri: http://localhost:4004
+      discovery:
+        enabled: true
+        service-id: CONFIG-SERVER
+      failFast: true  

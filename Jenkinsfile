@@ -58,7 +58,17 @@ pipeline {
                 }
             }
         }
-
+       
+       stage('Spinning Containers') {
+            steps {
+                    sh '''
+                    docker-compose down
+                    docker-compose build
+                    docker-compose up -d
+                    '''
+                }
+            }
+        }
         // stage('docker stop container') {
         //     steps {
         //         sh 'docker ps -f name=user-service -q | xargs --no-run-if-empty docker container stop'

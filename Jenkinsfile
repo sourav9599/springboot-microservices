@@ -57,9 +57,7 @@ pipeline {
                     sh 'docker push souravcoder99/$microservice-dockerapp:latest'
                 }
             }
-        }
-       
-       stage('Spinning Containers') {
+        stage('Spinning Containers') {
             steps {
                     sh '''
                     docker-compose down
@@ -69,6 +67,8 @@ pipeline {
                 }
             }
         }
+       
+
         // stage('docker stop container') {
         //     steps {
         //         sh 'docker ps -f name=user-service -q | xargs --no-run-if-empty docker container stop'

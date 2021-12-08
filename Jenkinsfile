@@ -39,7 +39,7 @@ pipeline {
         stage('Building image') {
             steps {
                     sh '''
-                    cd $microservice
+                    cd $microservice 
                     docker build -t souravcoder99/$microservice-dockerapp:latest .
                     '''
                 
@@ -60,6 +60,8 @@ pipeline {
         stage('Spinning Containers') {
             steps {
                     sh '''
+                    cp docker-compose.yml ~/docker-compose-micro
+                    cd ~/docker-compose-micro
                     docker-compose down
                     docker-compose build
                     docker-compose up -d

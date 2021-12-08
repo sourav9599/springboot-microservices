@@ -1,8 +1,8 @@
-spring:
-  cloud:
-    config:
-      enabled: true
-      uri: http://35.212.139.39:4004
+#spring:
+#  cloud:
+#    config:
+#      enabled: true
+#      uri: http://35.212.139.39:4004
 
 #spring:
 #  cloud:
@@ -10,4 +10,3 @@ spring:
 #      discovery:
 #        enabled: true
 #        service-id: CONFIG-SERVER
-        
